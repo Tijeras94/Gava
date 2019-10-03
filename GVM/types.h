@@ -1,13 +1,13 @@
 #pragma once
 
 // The types u1, u2, and u4 represent an unsigned one-, two-, or four-byte quantity, respectively
-typedef char u1;
+typedef unsigned char u1;
 // The types u1, u2, and u4 represent an unsigned one-, two-, or four-byte quantity, respectively
-typedef short u2;
+typedef unsigned short u2;
 // The types u1, u2, and u4 represent an unsigned one-, two-, or four-byte quantity, respectively
-typedef __int32 u4;
+typedef unsigned __int32 u4;
 // The types u1, u2, and u4 represent an unsigned one-, two-, or four-byte quantity, respectively
-typedef __int64 u8;
+typedef unsigned __int64 u8;
 
 #define getu4(p) (u4)( (u4)((p)[0])<<24 & 0xFF000000 | (u4)((p)[1])<<16 & 0x00FF0000 | (u4)((p)[2])<<8 & 0x0000FF00| (u4)((p)[3]) & 0x000000FF)
 

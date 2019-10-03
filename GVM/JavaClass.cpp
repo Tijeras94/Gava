@@ -2,7 +2,7 @@
 #include "Stream.h"
 #include <memory>
 
-JavaClass::JavaClass(const u1* filename)
+JavaClass::JavaClass(const char* filename)
 {
 	char fp[120];
 	strcpy(fp, "sdk/");
@@ -147,7 +147,7 @@ JavaClass* JavaClass::GetSuperClass()
 	return nullptr;
 }
 
-bool JavaClass::Load(const u1* filename, JavaClass& cf)
+bool JavaClass::Load(const char* filename, JavaClass& cf)
 {
 	FileStream reader(filename); 
 	cf.magic = reader.readInt();

@@ -7,7 +7,7 @@ class FileStream
 {
 public:
 	// create a file pointer based on file
-	FileStream(const u1* filepath);
+	FileStream(const char* filepath);
 
 	// deallocates file memory
 	~FileStream();

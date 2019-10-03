@@ -5,7 +5,7 @@
 class JavaClass : ClassFile
 {
 public:
-	JavaClass(const u1* filename);
+	JavaClass(const char* filename);
 	cp_info GetConstant(int index);
 
 	method_info GetMethod(const char* name, const char* signature);
@@ -16,6 +16,6 @@ public:
 	bool GetSuperClassName(char* name);
 	JavaClass* GetSuperClass();
 
-	static bool Load(const u1* filename, JavaClass& cf);
+	static bool Load(const char* filename, JavaClass& cf);
 };
 

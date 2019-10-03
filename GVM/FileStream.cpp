@@ -1,6 +1,6 @@
 #include "FileStream.h"
 
-FileStream::FileStream(const u1* filepath)
+FileStream::FileStream(const char* filepath)
 {
 	pos = 0;
 	pFile = fopen(filepath, "rb");
@@ -31,7 +31,7 @@ u1 FileStream::readByte()
 
 u1 FileStream::peekByte()
 {
-	u1 ret = peekByte();
+	u1 ret = readByte();
 	fseek(pFile, -1, SEEK_CUR);
 	return ret;
 }
