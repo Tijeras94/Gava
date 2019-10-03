@@ -1,8 +1,5 @@
 #include "FileStream.h"
 
-
-
-
 FileStream::FileStream(const u1* filepath)
 {
 	pos = 0;
@@ -32,7 +29,21 @@ u1 FileStream::readByte()
 	return byte;
 }
 
-//get short big indian
+u1 FileStream::peekByte()
+{
+	u1 ret = peekByte();
+	fseek(pFile, -1, SEEK_CUR);
+	return ret;
+}
+ 
+bool FileStream::readBytes(int bytes, u1* &data) {
+	data = new u1[bytes];
+	if (fread(data, sizeof(u1), bytes, pFile) == bytes) {
+		return true;
+	}
+	return false;
+}
+ 
 u2 FileStream::readShort()
 {
 	u1 byte[2];
@@ -40,9 +51,23 @@ u2 FileStream::readShort()
 	return (byte[0] & 0xFF) << 8 | (byte[1] & 0xFF);
 }
 
+u2 FileStream::peekShort()
+{
+	u2 ret = readShort();
+	fseek(pFile, -2, SEEK_CUR);
+	return ret;
+}
+
 u4 FileStream::readInt()
 {
 	u2 f = readShort();
 	u2 s = readShort();
 	return (f & 0xFFFF) << 16 | (s & 0xFFFF);
+}
+
+u4 FileStream::peekInt()
+{
+	u4 ret = readInt();
+	fseek(pFile, -4, SEEK_CUR);
+	return ret;
 }

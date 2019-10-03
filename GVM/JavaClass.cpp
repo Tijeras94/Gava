@@ -1,7 +1,200 @@
 #include "JavaClass.h"
-
+#include <memory>
 
 JavaClass::JavaClass(const u1* filename)
 {
+	char fp[120];
+	strcpy(fp, "sdk/");
+	strcat(fp, filename);
+	strcat(fp, ".class");
 
+	if (!JavaClass::Load(fp, *this))
+	{
+		printf("Unable to load class \"%s\"\n", filename);
+	}
+}
+
+bool JavaClass::GetUtf8String(cp_info sc,  char* name)
+{
+	if (sc.tag == CONSTANT_Utf8) {
+		//get the name utf8
+		auto str_len = getu2(sc.info) + 1; // add the null character to string
+		memcpy(name, sc.info + 2, str_len);
+		name[str_len - 1] = 0; 
+		return true;
+	}
+	return false;
+}
+
+bool JavaClass::GetClassName(char* name)
+{
+	auto sc = GetConstant(this->this_class);
+	if (sc.tag == CONSTANT_Class) {
+		auto name_index = getu2(sc.info);
+		//get the name utf8
+		sc = GetConstant(name_index);
+		if (GetUtf8String(sc, name)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+  
+method_info JavaClass::GetMethod(const char* name, const char* signature)
+{
+	JavaClass* curr = this;
+	while (curr != nullptr)
+	{
+		for (int i = 0; i < this->methods_count; i++)
+		{
+			char tmp[120];
+			GetUtf8String(GetConstant(this->methods[i].name_index), tmp);
+			if (strcmp(tmp, name) == 0) {
+				GetUtf8String(GetConstant(this->methods[i].descriptor_index), tmp);
+				if (strcmp(tmp, signature) == 0) {
+					return this->methods[i];
+				}
+			}
+		}
+
+		if (curr != nullptr)
+			curr = curr->GetSuperClass();// go to his super class to find the method
+	}
+	method_info i;
+	i.name_index = -1;
+	return i;
+}
+
+bool JavaClass::GetSuperClassName(char*name)
+{
+	auto sc = GetConstant(super_class);
+	if (sc.tag == CONSTANT_Class) {
+		auto name_index = getu2(sc.info);
+		//get the name utf8
+		sc = GetConstant(name_index);
+		if (GetUtf8String(sc, name)) {
+			return true;
+		}
+	} 
+
+	return false;
+}
+
+cp_info JavaClass::GetConstant(int index)
+{
+	if (index < this->constant_pool_count) {
+		return this->constant_pool[index - 1];
+	}
+
+	cp_info sc;
+	sc.tag = 0; 
+	return sc;
+}
+
+
+JavaClass* JavaClass::GetSuperClass()
+{
+	char name[120];
+	memset(name,0, 120);
+	if (GetSuperClassName(name))
+	{ 
+		return new JavaClass(name);
+	} 
+	return nullptr;
+}
+
+bool JavaClass::Load(const u1* filename, JavaClass& cf)
+{
+	FileStream reader(filename); 
+	cf.magic = reader.readInt();
+	cf.minor_version = reader.readShort();
+	cf.major_version = reader.readShort();
+	cf.constant_pool_count = reader.readShort();
+	cf.constant_pool = new cp_info[cf.constant_pool_count];
+	for (int i = 0; i < cf.constant_pool_count - 1; i++)
+	{
+		cf.constant_pool[i].tag = reader.readByte();
+		//iin order to get the right bytes for the info, you subtract the byte for the tag and the byte that the struct is holding
+		switch (cf.constant_pool[i].tag)
+		{
+		case CONSTANT_Utf8:
+		{
+			u2 length = reader.peekShort(); //get the lenght
+			//read the first short containing the lenght of string and get the string bytes
+			reader.readBytes(length + 2, cf.constant_pool[i].info);
+			break;
+		}
+		case CONSTANT_String:
+			reader.readBytes(sizeof(struct CONSTANT_String_info) - 2, cf.constant_pool[i].info);
+			break;
+		case CONSTANT_Integer:
+			reader.readBytes(sizeof(u4), cf.constant_pool[i].info);
+			break;
+		case CONSTANT_NameAndType:
+			reader.readBytes(sizeof(struct CONSTANT_NameAndType_info) - 2, cf.constant_pool[i].info);
+			break;
+		case CONSTANT_Class:
+			reader.readBytes(sizeof(struct CONSTANT_Class_info) - 2, cf.constant_pool[i].info);
+			break;
+		case CONSTANT_Methodref:
+			reader.readBytes(sizeof(struct CONSTANT_Methodref_info) - 2, cf.constant_pool[i].info);
+			break;
+		default:
+			printf("constant tag(%i) not supported :( \n", cf.constant_pool[i].tag);
+			//exit(EXIT_FAILURE);
+			return false;
+			break;
+		}
+	}
+	cf.access_flags = reader.readShort();
+	cf.this_class = reader.readShort();
+	cf.super_class = reader.readShort();
+	cf.interfaces_count = reader.readShort();
+	cf.interfaces = new u2[cf.interfaces_count];
+	for (int i = 0; i < cf.interfaces_count; i++)
+	{
+		cf.interfaces[i] = reader.readShort();
+	}
+	cf.fields_count = reader.readShort();;
+	cf.fields = new field_info[cf.fields_count];
+	for (int i = 0; i < cf.fields_count; i++)
+	{
+		cf.fields[i].access_flags = reader.readShort();
+		cf.fields[i].name_index = reader.readShort();
+		cf.fields[i].descriptor_index = reader.readShort();
+		cf.fields[i].attributes_count = reader.readShort();
+		cf.fields[i].attributes = new attribute_info[cf.fields[i].attributes_count];
+		for (int q = 0; q < cf.fields[i].attributes_count; q++)
+		{
+			cf.fields[i].attributes[q].attribute_name_index = reader.readShort();
+			cf.fields[i].attributes[q].attribute_length = reader.readInt();
+			reader.readBytes(cf.fields[i].attributes[q].attribute_length, cf.fields[i].attributes[q].info);
+		}
+	}
+	cf.methods_count = reader.readShort();
+	cf.methods = new method_info[cf.methods_count];
+	for (int i = 0; i < cf.methods_count; i++)
+	{
+		cf.methods[i].access_flags = reader.readShort();
+		cf.methods[i].name_index = reader.readShort();
+		cf.methods[i].descriptor_index = reader.readShort();
+		cf.methods[i].attributes_count = reader.readShort();
+		cf.methods[i].attributes = new attribute_info[cf.methods[i].attributes_count];
+		for (int q = 0; q < cf.methods[i].attributes_count; q++)
+		{
+			cf.methods[i].attributes[q].attribute_name_index = reader.readShort();
+			cf.methods[i].attributes[q].attribute_length = reader.readInt();
+			reader.readBytes(cf.methods[i].attributes[q].attribute_length, cf.methods[i].attributes[q].info);
+		}
+	}
+	cf.attributes_count = reader.readShort();
+	cf.attributes = new attribute_info[cf.attributes_count];
+	for (int q = 0; q < cf.attributes_count; q++)
+	{
+		cf.attributes[q].attribute_name_index = reader.readShort();
+		cf.attributes[q].attribute_length = reader.readInt();
+		reader.readBytes(cf.attributes[q].attribute_length, cf.attributes[q].info);
+	}
+	return true;
 }

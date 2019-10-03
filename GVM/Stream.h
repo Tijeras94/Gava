@@ -1,23 +1,24 @@
 #pragma once
+#pragma once
 #include <stdio.h>
 #include <stdlib.h>
 #include "types.h"
 
-class FileStream
+class Stream
 {
 public:
 	// create a file pointer based on file
-	FileStream(const u1* filepath);
+	Stream(const u1* data, u4 size);
 
 	// deallocates file memory
-	~FileStream();
+	~Stream();
 
 	// read a u1 from the stream
-	u1 readByte(); 
+	u1 readByte();
 	u1 peekByte();
 
 	// read bytes from the stream, returns true if success else false
-	bool readBytes(int bytes, u1* &data);
+	bool readBytes(int bytes, u1*& data);
 
 	// read a u2 from the stream
 	u2 readShort();
@@ -27,7 +28,7 @@ public:
 	u4 readInt();
 	u4 peekInt();
 private:
-	FILE* pFile;
+	u1* data;
 	u8 lenght;
 	u8 pos;
 
