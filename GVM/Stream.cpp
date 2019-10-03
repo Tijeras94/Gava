@@ -11,7 +11,7 @@ Stream::Stream(const u1* data, u4 size)
 
 Stream::~Stream()
 {
-	delete this->data;
+	delete[] this->data;
 }
 
 u1 Stream::readByte()
@@ -23,9 +23,14 @@ u1 Stream::readByte()
 	return byte;
 }
 
+bool Stream::eof()
+{
+	return (pos > lenght);
+}
+
 u1 Stream::peekByte()
 { 
-	u1 ret = peekByte();
+	u1 ret = readByte();
 	pos -= 1;
 	return ret;
 }

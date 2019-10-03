@@ -159,6 +159,7 @@
   <ItemGroup>
     <ClInclude Include="FileStream.h" />
     <ClInclude Include="JavaClass.h" />
+    <ClInclude Include="opcodes.h" />
     <ClInclude Include="Stream.h" />
     <ClInclude Include="types.h" />
   </ItemGroup>

@@ -9,6 +9,7 @@ public:
 	cp_info GetConstant(int index);
 
 	method_info GetMethod(const char* name, const char* signature);
+	Code_attribute getCodeFromMethod(method_info info);
 	bool GetUtf8String(cp_info sc, char* name);
 	
 	bool GetClassName(char* name);

@@ -1,4 +1,5 @@
 #include "JavaClass.h"
+#include "Stream.h"
 #include <memory>
 
 JavaClass::JavaClass(const u1* filename)
@@ -64,6 +65,48 @@ method_info JavaClass::GetMethod(const char* name, const char* signature)
 	method_info i;
 	i.name_index = -1;
 	return i;
+}
+
+Code_attribute JavaClass::getCodeFromMethod(method_info info)
+{
+	Code_attribute ca;
+	ca.attribute_name_index = -1; // if not found set index to an invalid entry
+
+	for (int i = 0; i < info.attributes_count; i++)
+	{
+		char name[100];
+		this->GetUtf8String(this->GetConstant(info.attributes[i].attribute_name_index), name);
+		if (strcmp(name, "Code") == 0) {
+
+			ca.attribute_name_index = info.attributes[i].attribute_name_index;
+			ca.attribute_length = info.attributes[i].attribute_length;
+			Stream code(info.attributes[i].info, info.attributes[i].attribute_length);
+			ca.max_stack = code.readShort();
+			ca.max_locals = code.readShort();
+			ca.code_length = code.readInt();
+			ca.code = new u1[ca.code_length];
+			code.readBytes(ca.code_length, ca.code);
+			ca.exception_table_length = code.readShort();
+			ca.exception_table = new exception_table[ca.exception_table_length];
+			for (int i = 0; i < ca.exception_table_length; i++)
+			{
+				ca.exception_table[i].start_pc = code.readShort();
+				ca.exception_table[i].end_pc = code.readShort();
+				ca.exception_table[i].handler_pc = code.readShort();
+				ca.exception_table[i].catch_type = code.readShort();
+			}
+			ca.attributes_count = code.readShort();
+			ca.attributes = new attribute_info[ca.attributes_count];
+			for (int i = 0; i < ca.attributes_count; i++)
+			{
+				ca.attributes[i].attribute_name_index = code.readShort();
+				ca.attributes[i].attribute_length = code.readShort();
+				code.readBytes(ca.attributes[i].attribute_length, ca.attributes[i].info);
+			}
+		}
+	}
+
+	return ca;
 }
 
 bool JavaClass::GetSuperClassName(char*name)

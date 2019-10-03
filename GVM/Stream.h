@@ -27,6 +27,9 @@ public:
 	// read a u4 from the stream
 	u4 readInt();
 	u4 peekInt();
+
+	bool eof();
+
 private:
 	u1* data;
 	u8 lenght;

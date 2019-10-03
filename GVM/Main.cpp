@@ -2,37 +2,95 @@
 #include <assert.h>
 #include <memory>
 #include "types.h"
+#include "opcodes.h"
 
 //#include "FileStream.h"
 #include "JavaClass.h"
 #include "Stream.h"
 
+ 
+class Frame {
+public:
+	Frame(int stacklen = 20, int varlen = 20) {
+		stack_len = stacklen;
+		stack = new int[stack_len];
+		var_len = varlen;
+		variable = (int*)new int[var_len];
+		sp = 0;
+		vp = 0;
+	}
+
+	void pushs(int n) {
+		stack[sp++] = n;
+	}
+
+	int pops() {
+		return stack[--sp];
+	}
+
+	void setv(int i, int val) {
+		variable[i] = val;
+	}
+
+	int getv(int i) {
+		return variable[i];
+	}
+
+	int* variable;
+	int var_len;
+	int vp;
+	int* stack;
+	int sp;
+	int stack_len;
+}; 
+
+void exec(Stream& code, Frame* f) {
+	u1 opcode = code.readByte();
+	if (opcode == op_bipush) {
+		f->pushs(code.readByte());
+	}else if (opcode == op_istore_1) {
+		f->setv(1, f->pops());
+	}
+	else if (opcode == op_istore_2) {
+		f->setv(2, f->pops());
+	}
+	else if (opcode == op_istore_3) {
+		f->setv(3, f->pops());
+	}
+	else if (opcode == op_iload_1) {
+		f->pushs(f->getv(1));
+	}
+	else if (opcode == op_iload_2) {
+		f->pushs(f->getv(2));
+	}
+	else if (opcode == op_iload_3) {
+		f->pushs(f->getv(3));
+	}
+	else if (opcode == op_iadd) {
+		f->pushs(f->pops() + f->pops());
+	}
+	else if (opcode == op_invokestatic) {
+		u2 ind = (code.readByte() << 8) | code.readByte();
+		printf("Invoking static: %i\n", ind);
+	}
+
+	if(!code.eof())
+		exec(code, f);
+}
+
 int main()
 {
-	JavaClass jclass("Hello");
+	JavaClass jclass("Hello"); 
 
 	//char name[100];
-	method_info info =  jclass.GetMethod("main", "([Ljava/lang/String;)V");
-	for (int i = 0; i < info.attributes_count; i++)
-	{
-		char name[100];
-		jclass.GetUtf8String(jclass.GetConstant(info.attributes[i].attribute_name_index), name);
-		if (strcmp(name, "Code") == 0){
-			
-			Code_attribute ca; 
-			ca.attribute_name_index = info.attributes[i].attribute_name_index;
-			ca.attribute_length = info.attributes[i].attribute_length;
-			Stream code(info.attributes[i].info, info.attributes[i].attribute_length);
-			ca.max_stack = code.readShort();
-			ca.max_locals = code.readShort();
-			ca.code_length = code.readInt();
-			ca.code = new u1[ca.code_length];
-			code.readBytes(ca.code_length, ca.code);
-			//ca.code[code_length];
+	method_info info = jclass.GetMethod("main", "([Ljava/lang/String;)V");
+	auto cd = jclass.getCodeFromMethod(info);
+	Stream code(cd.code, cd.code_length);
+	Frame frame[10];
 
 
-
-			printf("Hello World!\n");
-		}
-	}
+	exec(code, frame);
+	printf("Dine");
+	
+	
 }

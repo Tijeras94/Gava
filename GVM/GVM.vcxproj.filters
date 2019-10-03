@@ -41,5 +41,8 @@
     <ClInclude Include="Stream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="opcodes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

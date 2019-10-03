@@ -194,7 +194,7 @@ struct Code_attribute {
 	u2 exception_table_length;
 	exception_table* exception_table;// [exception_table_length] ;
 	u2 attributes_count;
-	attribute_info attributes;// [attributes_count] ;
+	attribute_info* attributes;// [attributes_count] ;
 };
 
 // Each field is described by a field_info structure. No two fields in one 
