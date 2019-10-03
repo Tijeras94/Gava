@@ -1,6 +1,13 @@
 #include "Stream.h" 
 #include <memory>
 
+Stream::Stream()
+{
+	this->data = nullptr;
+	this->pos = 0;
+	this->lenght = 0;
+}
+
 Stream::Stream(const u1* data, u4 size)
 {
 	this->data = new u1[size];

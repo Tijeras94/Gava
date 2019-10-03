@@ -7,6 +7,9 @@
 class Stream
 {
 public:
+	// 
+	Stream();
+
 	// create a file pointer based on file
 	Stream(const u1* data, u4 size);
 
@@ -30,9 +33,12 @@ public:
 
 	bool eof();
 
-private:
+protected:
+	//array of bytes of the data
 	u1* data;
+	//size of the data
 	u8 lenght;
+	// used to keep track of the cursor 
 	u8 pos;
 
 };
