@@ -3,12 +3,12 @@
 #include <memory>
 #include "types.h"
 #include "opcodes.h"
-
-//#include "FileStream.h"
-#include "JavaClass.h"
-#include "Stream.h"
-
  
+#include "ClassHeap.h"
+#include "JavaClass.h"
+#include "Stream.h" 
+
+
 class Frame {
 public:
 	Frame(int stacklen = 20, int varlen = 20) {
@@ -42,13 +42,14 @@ public:
 	int* stack;
 	int sp;
 	int stack_len;
-}; 
+};
 
 void exec(Stream& code, Frame* f) {
 	u1 opcode = code.readByte();
 	if (opcode == op_bipush) {
 		f->pushs(code.readByte());
-	}else if (opcode == op_istore_1) {
+	}
+	else if (opcode == op_istore_1) {
 		f->setv(1, f->pops());
 	}
 	else if (opcode == op_istore_2) {
@@ -70,27 +71,30 @@ void exec(Stream& code, Frame* f) {
 		f->pushs(f->pops() + f->pops());
 	}
 	else if (opcode == op_invokestatic) {
-		u2 ind = (code.readByte() << 8) | code.readByte();
+		u2 ind = code.readShort();
 		printf("Invoking static: %i\n", ind);
 	}
 
-	if(!code.eof())
+	if (!code.eof())
 		exec(code, f);
 }
 
+
 int main()
 {
-	JavaClass jclass("Hello"); 
+	JavaClass* jclass;
+	ClassHeap map;
+	map.LoadClass("Hello", jclass);  
 
 	//char name[100];
-	method_info info = jclass.GetMethod("main", "([Ljava/lang/String;)V");
-	auto cd = jclass.getCodeFromMethod(info);
+	method_info info = jclass->GetMethod("main", "([Ljava/lang/String;)V");
+	auto cd = jclass->getCodeFromMethod(info);
 	Stream code(cd.code, cd.code_length);
 	Frame frame[10];
 
 
 	exec(code, frame);
 	printf("Dine");
-	
-	
+
+
 }
