@@ -4,12 +4,17 @@ bool ClassHeap::LoadClass(GString classname, JavaClass* &jclass)
 {
 	if (!dic.contains(&classname)) {
 		jclass = new JavaClass(classname.c_str());
-		dic.set(new GString(classname), jclass);
-		return true;
+		if (jclass->isLoaded) {
+			dic.set(new GString(classname), jclass);
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
 	jclass = dic.get(&classname);
-	return false;
+	return true;
 }
 
 bool ClassHeap::AddClass(JavaClass* pJavaClass)

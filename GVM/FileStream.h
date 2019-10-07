@@ -9,6 +9,7 @@ class FileStream : public Stream
 public:
 	// create a file pointer based on file
 	FileStream(const char* filepath); 
+	bool Success;
 private:  
 };
 

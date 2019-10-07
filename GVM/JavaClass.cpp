@@ -9,10 +9,14 @@ JavaClass::JavaClass(const char* filename)
 	strcat(fp, filename);
 	strcat(fp, ".class");
 
+	this->isLoaded = true;
+
 	if (!JavaClass::Load(fp, *this))
 	{
 		printf("Unable to load class \"%s\"\n", filename);
+		this->isLoaded = false;
 	}
+
 }
  
 bool JavaClass::GetUtf8String(cp_info sc,  char* name)
@@ -155,7 +159,9 @@ JavaClass* JavaClass::GetSuperClass()
 
 bool JavaClass::Load(const char* filename, JavaClass& cf)
 {
-	FileStream reader(filename); 
+	FileStream reader(filename);
+	if (!reader.Success) return false;
+
 	cf.magic = reader.readInt();
 	cf.minor_version = reader.readShort();
 	cf.major_version = reader.readShort();

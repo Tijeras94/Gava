@@ -207,15 +207,16 @@ void exec(Stream& code, Frame* f, JavaClass* jclass) {
 int main()
 {
 	JavaClass* jclass;
-	ClassHeap map;
-	map.LoadClass("Hello", jclass);  
+	ClassHeap map; 
+	if (map.LoadClass("Hello", jclass)) {
+		//char name[100];
+		method_info info = jclass->GetMethod("main", "([Ljava/lang/String;)V");
+		auto cd = jclass->getCodeFromMethod(info);
+		Stream code(cd.code, cd.code_length);
+		Frame frame[10];
 
-	//char name[100];
-	method_info info = jclass->GetMethod("main", "([Ljava/lang/String;)V");
-	auto cd = jclass->getCodeFromMethod(info);
-	Stream code(cd.code, cd.code_length);
-	Frame frame[10]; 
+		exec(code, frame, jclass);
+	}
 
-	exec(code, frame, jclass);
 	return 0;
 }

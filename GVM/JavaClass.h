@@ -6,6 +6,8 @@
 class JavaClass : ClassFile
 {
 public:
+	bool isLoaded;
+public:
 	JavaClass(const char* filename);
 	CStream GetStreamConstant(int index);
 	cp_info GetConstant(int index);
