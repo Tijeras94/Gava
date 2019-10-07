@@ -4,8 +4,12 @@
 typedef unsigned char u1;
 // The types u1, u2, and u4 represent an unsigned one-, two-, or four-byte quantity, respectively
 typedef unsigned short u2;
+// represent a signed short
+typedef short i2;
 // The types u1, u2, and u4 represent an unsigned one-, two-, or four-byte quantity, respectively
 typedef unsigned __int32 u4;
+// represents a signed int
+typedef __int32 i4;
 // The types u1, u2, and u4 represent an unsigned one-, two-, or four-byte quantity, respectively
 typedef unsigned __int64 u8;
 

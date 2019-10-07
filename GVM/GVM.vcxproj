@@ -152,6 +152,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ClassHeap.cpp" />
+    <ClCompile Include="CStream.cpp" />
     <ClCompile Include="FileStream.cpp" />
     <ClCompile Include="GString.cpp" />
     <ClCompile Include="JavaClass.cpp" />
@@ -160,6 +161,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ClassHeap.h" />
+    <ClInclude Include="CStream.h" />
     <ClInclude Include="Dictionary.h" />
     <ClInclude Include="FileStream.h" />
     <ClInclude Include="GString.h" />

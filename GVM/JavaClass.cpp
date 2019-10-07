@@ -14,7 +14,7 @@ JavaClass::JavaClass(const char* filename)
 		printf("Unable to load class \"%s\"\n", filename);
 	}
 }
-
+ 
 bool JavaClass::GetUtf8String(cp_info sc,  char* name)
 {
 	if (sc.tag == CONSTANT_Utf8) {
@@ -101,7 +101,8 @@ Code_attribute JavaClass::getCodeFromMethod(method_info info)
 			{
 				ca.attributes[i].attribute_name_index = code.readShort();
 				ca.attributes[i].attribute_length = code.readShort();
-				code.readBytes(ca.attributes[i].attribute_length, ca.attributes[i].info);
+				//delete mory
+				code.readBytes(ca.attributes[i].attribute_length, ca.attributes[i].info = new u1[ca.attributes[i].attribute_length]);
 			}
 		}
 	}
@@ -122,6 +123,11 @@ bool JavaClass::GetSuperClassName(char*name)
 	} 
 
 	return false;
+}
+
+CStream JavaClass::GetStreamConstant(int index)
+{
+	return CStream(GetConstant(index));
 }
 
 cp_info JavaClass::GetConstant(int index)
@@ -158,30 +164,43 @@ bool JavaClass::Load(const char* filename, JavaClass& cf)
 	for (int i = 0; i < cf.constant_pool_count - 1; i++)
 	{
 		cf.constant_pool[i].tag = reader.readByte();
+		int size = 0;
 		//iin order to get the right bytes for the info, you subtract the byte for the tag and the byte that the struct is holding
 		switch (cf.constant_pool[i].tag)
 		{
 		case CONSTANT_Utf8:
 		{
 			u2 length = reader.peekShort(); //get the lenght
+			size = length + 2;
+			cf.constant_pool[i].info = new u1[size]; // make sure to free this data later on
 			//read the first short containing the lenght of string and get the string bytes
 			reader.readBytes(length + 2, cf.constant_pool[i].info);
 			break;
 		}
 		case CONSTANT_String:
-			reader.readBytes(sizeof(struct CONSTANT_String_info) - 2, cf.constant_pool[i].info);
+			size = sizeof(struct CONSTANT_String_info) - 2;
+			cf.constant_pool[i].info = new u1[size]; // make sure to free this data later on
+			reader.readBytes(size, cf.constant_pool[i].info);
 			break;
 		case CONSTANT_Integer:
-			reader.readBytes(sizeof(u4), cf.constant_pool[i].info);
+			size = sizeof(u4);
+			cf.constant_pool[i].info = new u1[size]; // make sure to free this data later on
+			reader.readBytes(size, cf.constant_pool[i].info);
 			break;
 		case CONSTANT_NameAndType:
-			reader.readBytes(sizeof(struct CONSTANT_NameAndType_info) - 2, cf.constant_pool[i].info);
+			size = sizeof(struct CONSTANT_NameAndType_info) - 2;
+			cf.constant_pool[i].info = new u1[size]; // make sure to free this data later on
+			reader.readBytes(size, cf.constant_pool[i].info);
 			break;
 		case CONSTANT_Class:
-			reader.readBytes(sizeof(struct CONSTANT_Class_info) - 2, cf.constant_pool[i].info);
+			size = sizeof(struct CONSTANT_Class_info) - 2;
+			cf.constant_pool[i].info = new u1[size]; // make sure to free this data later on
+			reader.readBytes(size, cf.constant_pool[i].info);
 			break;
 		case CONSTANT_Methodref:
-			reader.readBytes(sizeof(struct CONSTANT_Methodref_info) - 2, cf.constant_pool[i].info);
+			size = sizeof(struct CONSTANT_Methodref_info) - 2;
+			cf.constant_pool[i].info = new u1[size]; // make sure to free this data later on
+			reader.readBytes(size, cf.constant_pool[i].info);
 			break;
 		default:
 			printf("constant tag(%i) not supported :( \n", cf.constant_pool[i].tag);
@@ -228,7 +247,8 @@ bool JavaClass::Load(const char* filename, JavaClass& cf)
 		{
 			cf.methods[i].attributes[q].attribute_name_index = reader.readShort();
 			cf.methods[i].attributes[q].attribute_length = reader.readInt();
-			reader.readBytes(cf.methods[i].attributes[q].attribute_length, cf.methods[i].attributes[q].info);
+			//make sure to delete data
+			reader.readBytes(cf.methods[i].attributes[q].attribute_length, cf.methods[i].attributes[q].info = new u1[cf.methods[i].attributes[q].attribute_length]);
 		}
 	}
 	cf.attributes_count = reader.readShort();
@@ -237,7 +257,8 @@ bool JavaClass::Load(const char* filename, JavaClass& cf)
 	{
 		cf.attributes[q].attribute_name_index = reader.readShort();
 		cf.attributes[q].attribute_length = reader.readInt();
-		reader.readBytes(cf.attributes[q].attribute_length, cf.attributes[q].info);
+		//make sure to delete data
+		reader.readBytes(cf.attributes[q].attribute_length, cf.attributes[q].info = new u1[cf.attributes[q].attribute_length]);
 	}
 	return true;
 }

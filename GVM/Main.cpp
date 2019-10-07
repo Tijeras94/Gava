@@ -6,12 +6,12 @@
  
 #include "ClassHeap.h"
 #include "JavaClass.h"
-#include "Stream.h" 
+#include "CStream.h" 
 
 
 class Frame {
 public:
-	Frame(int stacklen = 20, int varlen = 20) {
+	Frame(int stacklen = 50, int varlen = 50) {
 		stack_len = stacklen;
 		stack = new int[stack_len];
 		var_len = varlen;
@@ -44,7 +44,7 @@ public:
 	int stack_len;
 };
 
-void exec(Stream& code, Frame* f) {
+void exec(Stream& code, Frame* f, JavaClass* jclass) {
 	u1 opcode = code.readByte();
 	if (opcode == op_bipush) {
 		f->pushs(code.readByte());
@@ -58,6 +58,30 @@ void exec(Stream& code, Frame* f) {
 	else if (opcode == op_istore_3) {
 		f->setv(3, f->pops());
 	}
+	else if (opcode == op_iconst_0) {
+		f->pushs(0);
+	}
+	else if (opcode == op_iconst_1) {
+		f->pushs(1);
+	}
+	else if (opcode == op_iconst_2) {
+		f->pushs(2);
+	}
+	else if (opcode == op_iconst_3) {
+		f->pushs(3);
+	}
+	else if (opcode == op_iconst_4) {
+		f->pushs(4);
+	}
+	else if (opcode == op_iconst_5) {
+		f->pushs(5);
+	}
+	else if (opcode == op_iload) {
+		f->pushs(f->getv(code.readByte()));
+	}
+	else if (opcode == op_iload_0) {
+		f->pushs(f->getv(0));
+	}
 	else if (opcode == op_iload_1) {
 		f->pushs(f->getv(1));
 	}
@@ -67,18 +91,118 @@ void exec(Stream& code, Frame* f) {
 	else if (opcode == op_iload_3) {
 		f->pushs(f->getv(3));
 	}
+	/// MATH
 	else if (opcode == op_iadd) {
 		f->pushs(f->pops() + f->pops());
 	}
+	else if (opcode == op_isub) {
+		f->pushs((-f->pops()) + f->pops());
+	}
+	else if (opcode == op_iinc) {
+		int index = code.readByte();
+		int cons = code.readByte();
+		f->setv(index, f->getv(index) + cons);
+	}
+	else if (opcode == op_imul) {
+		f->pushs(f->pops() * f->pops());
+	}
+	else if (opcode == op_return) {  
+		auto as = f - 1;
+
+		return;
+	} 
+	else if (opcode == op_ireturn) {
+		return;
+	}
 	else if (opcode == op_invokestatic) {
-		u2 ind = code.readShort();
-		printf("Invoking static: %i\n", ind);
+		u2 ind = code.readShort(); 
+		auto inf = jclass->GetStreamConstant(ind); 
+		auto ci = jclass->GetStreamConstant(inf.readShort());
+		auto nti = jclass->GetStreamConstant(inf.readShort());
+		char name[120];
+		char sig[120];
+		//method
+		jclass->GetUtf8String(jclass->GetConstant(nti.readShort()), name);
+		//sig
+		jclass->GetUtf8String(jclass->GetConstant(nti.readShort()), sig);
+
+		auto method = jclass->GetMethod(name, sig); 
+		if (method.access_flags & ACC_NATIVE) { 
+			// TODO: needs better management for native functions 
+
+			//check method if its a void method
+			if (strstr(sig, ")V") != NULL) {  //  if its void, do nothing to the stack
+
+				//check if current function its a native print function 
+				if (strcmp("Print", name) == 0) { // check if method is a print
+					int as = f->pops(); // pop value
+					printf("%i", as);
+				}
+
+			}
+			else {
+				// if native functions that are not void, therefore needs to return object
+
+			}
+		}
+		else {
+			//printf("Invoking static: %s%s\n", name, sig);
+			
+			//method is not native
+			auto cd = jclass->getCodeFromMethod(method);
+			Frame* nf = f + 1; // go to the nex frame
+			
+			// TODO: this needs to be the args count 
+			//fill the variables with parametes method parameters
+			for (int i = 0; i < cd.max_locals; i++) {
+
+				nf->setv(i, f->pops());
+			}
+			//nf->setv(0, f->pops());
+			//nf->setv(1, f->pops());
+
+			//code. 
+			Stream code(cd.code, cd.code_length);
+			exec(code, nf, jclass);
+
+			//check if its a void method if its not push return value to the stack
+			if (strstr(sig, ")V") == NULL) {  
+				f->pushs(nf->pops()); // push return value to the end of the stack of the parent
+			} 
+
+		}
+
+		
+		
+	} // comparisons
+	else if (opcode == op_ifne) {
+		i4 jmp = code.readSignedShort() - 3;
+		if(0 != f->pops())
+			code.seekoffset(jmp); 
+	}
+	else if (opcode == op_goto) {
+		i4 jmp = code.readSignedShort() - 3; // jmp contains offset address starting  at opcode offet therefore subtract 3(opcodebyte(1) + i2(2)) will give you right offset
+		code.seekoffset(jmp); 
+	}
+	else if (opcode == op_if_icmpge) {
+		i4 jmp = code.readSignedShort() - 3;
+		//value1, value2 
+		int v2 = f->pops();
+		int v1 = f->pops();
+
+		//if value1 is greater than or equal to value2, branch to instruction at
+		if(v1 >= v2)
+			code.seekoffset(jmp); 
+	}
+	else
+	{ 
+		printf("Invalid opcode \"%i\" :( \n", opcode);
+		return;
 	}
 
 	if (!code.eof())
-		exec(code, f);
+		exec(code, f, jclass);
 }
-
 
 int main()
 {
@@ -90,11 +214,8 @@ int main()
 	method_info info = jclass->GetMethod("main", "([Ljava/lang/String;)V");
 	auto cd = jclass->getCodeFromMethod(info);
 	Stream code(cd.code, cd.code_length);
-	Frame frame[10];
+	Frame frame[10]; 
 
-
-	exec(code, frame);
-	printf("Dine");
-
-
+	exec(code, frame, jclass);
+	return 0;
 }

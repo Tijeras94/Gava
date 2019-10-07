@@ -20,16 +20,23 @@ public:
 	u1 readByte();
 	u1 peekByte();
 
-	// read bytes from the stream, returns true if success else false
-	bool readBytes(int bytes, u1*& data);
+	// read bytes from the stream, returns true if success else false, must be a valid array
+	bool readBytes(int bytes, u1* data); 
 
 	// read a u2 from the stream
 	u2 readShort();
+	i2 readSignedShort();
+
 	u2 peekShort();
+	i2 peekSignedShort();
 
 	// read a u4 from the stream
 	u4 readInt();
 	u4 peekInt();
+
+	void seekoffset(i4 pos);
+	void setPos(u8 pos);
+
 
 	bool eof();
 

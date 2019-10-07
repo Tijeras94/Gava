@@ -3,13 +3,24 @@ class Hello{
 
     public static native void Print(int num);
 
+    public static int factorial(int n){
+		if(n==0) return 1; 
+		else return (n* factorial(n-1));
+    }   
+	
     public static void main(String args[]){
-        int num1 = 20;
-        int num2 = 20;
+        //int num1 = 20;
+        //int num2 = 20;
 
-        int sum = num1 + num2;
+        int sum = factorial(5)   + 10;
         
         Print(sum);
+		//int i= 0;
+		//while(i<10){
+		//	Print(i);
+		//	i++;
+		//} 
+
 
     }
 }

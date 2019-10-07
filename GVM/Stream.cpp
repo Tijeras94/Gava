@@ -21,6 +21,16 @@ Stream::~Stream()
 	delete[] this->data;
 }
 
+void Stream::setPos(u8 pos)
+{
+	this->pos = pos;
+}
+
+void Stream::seekoffset(i4 pos)
+{
+	this->pos += pos;
+}
+
 u1 Stream::readByte()
 {
 	u1* curr = pos + this->data;
@@ -42,13 +52,13 @@ u1 Stream::peekByte()
 	return ret;
 }
 
-bool Stream::readBytes(int bytes, u1*& data) {
-	u1* curr = pos + this->data;
-	data = new u1[bytes]; 
-	memcpy(data, curr, bytes); 
+bool Stream::readBytes(int bytes, u1* data) {
+	u1* curr = pos + this->data; 
+	memcpy(data, curr, bytes); // we asume data pointer contains available space
 	pos += bytes;
 	return true;
-}
+} 
+
 
 u2 Stream::readShort()
 {
@@ -58,6 +68,23 @@ u2 Stream::readShort()
 	pos += 2;
 	return (byte[0] & 0xFF) << 8 | (byte[1] & 0xFF);
 }
+
+i2 Stream::readSignedShort()
+{
+	u1* curr = pos + this->data;
+	u1 byte[2];
+	memcpy(byte, curr, 2);
+	pos += 2;
+	return i2(byte[0] & 0xFF) << 8 | (byte[1] & 0xFF);
+}
+
+i2 Stream::peekSignedShort()
+{
+	i2 ret = readSignedShort();
+	pos -= 2;
+	return ret;
+}
+ 
 
 u2 Stream::peekShort()
 {

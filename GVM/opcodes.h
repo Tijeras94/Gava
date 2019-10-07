@@ -1,17 +1,34 @@
 #pragma once
 
+#define ACC_PUBLIC  0x0001 /*Declared public; may be accessed from outside its package.  */
+#define ACC_FINAL  0x0010  /*Declared final; no subclasses allowed.  */
+#define ACC_SUPER  0x0020  /*Treat superclass methods specially when invoked by the invokespecial instruction.  */
+#define ACC_INTERFACE  0x0200 /*Is an interface, not a class.  */
+#define ACC_ABSTRACT  0x0400 /*Declared abstract; may not be instantiated.  */
+
+//Method access
+#define ACC_PUBLIC  0x0001  /*Declared public; may be accessed from outside its package.  */
+#define ACC_PRIVATE  0x0002  /*Declared private; accessible only within the defining class.  */
+#define ACC_PROTECTED  0x0004  /*Declared protected; may be accessed within subclasses.  */
+#define ACC_STATIC  0x0008  /*Declared static.  */
+#define ACC_FINAL  0x0010  /*Declared final; may not be overridden.  */
+#define ACC_SYNCHRONIZED  0x0020  /*Declared synchronized; invocation is wrapped in a monitor lock.  */
+#define ACC_NATIVE  0x0100  /*Declared native; implemented in a language other than Java.  */
+#define ACC_ABSTRACT  0x0400  /*Declared abstract; no implementation is provided.  */
+#define ACC_STRICT  0x0800  /*Declared strictfp; floating-point mode is FP-strict  */
+
 //Constants
 
 #define op_nop			   00 //(0x00)
 #define op_aconst_null	   01 //(0x01)
 #define op_iconst_m1	   02 //(0x02)
-#define op_iconst_0	   03 //(0x03)
-#define op_iconst_1	   04 //(0x04)
-#define op_iconst_2	   05 //(0x05)
-#define op_iconst_3	   06 //(0x06)
-#define op_iconst_4	   07 //(0x07)
-#define op_iconst_5	   08 //(0x08)
-#define op_lconst_0	   09 //(0x09)
+#define op_iconst_0	   3 //(0x03)
+#define op_iconst_1	   4 //(0x04)
+#define op_iconst_2	   5 //(0x05)
+#define op_iconst_3	   6 //(0x06)
+#define op_iconst_4	   7 //(0x07)
+#define op_iconst_5	   8 //(0x08)
+#define op_lconst_0	   9 //(0x09)
 #define op_lconst_1	   10 //(0x0a)
 #define op_fconst_0	   11 //(0x0b)
 #define op_fconst_1	   12 //(0x0c)
