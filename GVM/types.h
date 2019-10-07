@@ -13,6 +13,10 @@ typedef __int32 i4;
 // The types u1, u2, and u4 represent an unsigned one-, two-, or four-byte quantity, respectively
 typedef unsigned __int64 u8;
 
+typedef long LONG_PTR;
+typedef float f4;
+typedef double f8;
+
 #define getu4(p) (u4)( (u4)((p)[0])<<24 & 0xFF000000 | (u4)((p)[1])<<16 & 0x00FF0000 | (u4)((p)[2])<<8 & 0x0000FF00| (u4)((p)[3]) & 0x000000FF)
 
 //gets a short from 2 values in array 
@@ -243,4 +247,21 @@ public:
 	method_info* methods;// [methods_count] ;
 	u2 attributes_count;
 	attribute_info* attributes;// [attributes_count] ;
+};
+
+class Object
+{
+public:
+	LONG_PTR heapPtr;
+	u1 type;
+};
+
+union Variable
+{
+	u1 charValue;
+	u2 shortValue;
+	u4 intValue;
+	f4 floatValue;
+	LONG_PTR ptrValue;
+	Object object;
 };

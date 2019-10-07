@@ -194,6 +194,10 @@ void exec(Stream& code, Frame* f, JavaClass* jclass) {
 		if(v1 >= v2)
 			code.seekoffset(jmp); 
 	}
+	// references
+	else if (opcode == op_new) {
+		
+	}
 	else
 	{ 
 		printf("Invalid opcode \"%i\" :( \n", opcode);
@@ -208,7 +212,7 @@ int main()
 {
 	JavaClass* jclass;
 	ClassHeap map; 
-	if (map.LoadClass("Hello", jclass)) {
+	if (map.LoadClass("Test", jclass)) {
 		//char name[100];
 		method_info info = jclass->GetMethod("main", "([Ljava/lang/String;)V");
 		auto cd = jclass->getCodeFromMethod(info);
