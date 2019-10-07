@@ -15,11 +15,11 @@ class Hello{
         int sum = factorial(5)   + 10;
         
         Print(sum);
-		//int i= 0;
-		//while(i<10){
-		//	Print(i);
-		//	i++;
-		//} 
+		int i= 0;
+		while(i<10){
+			Print(i);
+			i++;
+		} 
 
 
     }
