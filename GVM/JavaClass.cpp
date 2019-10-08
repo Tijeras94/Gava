@@ -167,53 +167,67 @@ bool JavaClass::Load(const char* filename, JavaClass& cf)
 	cf.major_version = reader.readShort();
 	cf.constant_pool_count = reader.readShort();
 	cf.constant_pool = new cp_info[cf.constant_pool_count];
-	for (int i = 0; i < cf.constant_pool_count - 1; i++)
+	int cindex = 0;
+	for (int i = 0; cindex < cf.constant_pool_count - 1; i++)
 	{
-		cf.constant_pool[i].tag = reader.readByte();
+		
+		cf.constant_pool[cindex].tag = reader.readByte();
+		printf("tag index %i: %i\n", cindex+1, cf.constant_pool[cindex].tag);
 		int size = 0;
 		//iin order to get the right bytes for the info, you subtract the byte for the tag and the byte that the struct is holding
-		switch (cf.constant_pool[i].tag)
+		switch (cf.constant_pool[cindex].tag)
 		{
 		case CONSTANT_Utf8:
 		{
 			u2 length = reader.peekShort(); //get the lenght
 			size = length + 2;
-			cf.constant_pool[i].info = new u1[size]; // make sure to free this data later on
+			cf.constant_pool[cindex].info = new u1[size]; // make sure to free this data later on
 			//read the first short containing the lenght of string and get the string bytes
-			reader.readBytes(length + 2, cf.constant_pool[i].info);
+			reader.readBytes(length + 2, cf.constant_pool[cindex].info);
 			break;
 		}
 		case CONSTANT_String:
 			size = sizeof(struct CONSTANT_String_info) - 2;
-			cf.constant_pool[i].info = new u1[size]; // make sure to free this data later on
-			reader.readBytes(size, cf.constant_pool[i].info);
+			cf.constant_pool[cindex].info = new u1[size]; // make sure to free this data later on
+			reader.readBytes(size, cf.constant_pool[cindex].info);
 			break;
 		case CONSTANT_Integer:
 			size = sizeof(u4);
-			cf.constant_pool[i].info = new u1[size]; // make sure to free this data later on
-			reader.readBytes(size, cf.constant_pool[i].info);
+			cf.constant_pool[cindex].info = new u1[size]; // make sure to free this data later on
+			reader.readBytes(size, cf.constant_pool[cindex].info);
+			break;
+		case CONSTANT_Double:
+			size = 8;// sizeof(struct CONSTANT_Double_info) - 2;
+			cf.constant_pool[cindex].info = new u1[size]; // make sure to free this data later on
+			reader.readBytes(size, cf.constant_pool[cindex].info);
+
+			cindex++; // add extra slot
+			cf.constant_pool[cindex].tag = -1;
+			cf.constant_pool[cindex].info = new u1[1];
 			break;
 		case CONSTANT_NameAndType:
 			size = sizeof(struct CONSTANT_NameAndType_info) - 2;
-			cf.constant_pool[i].info = new u1[size]; // make sure to free this data later on
-			reader.readBytes(size, cf.constant_pool[i].info);
+			cf.constant_pool[cindex].info = new u1[size]; // make sure to free this data later on
+			reader.readBytes(size, cf.constant_pool[cindex].info);
 			break;
 		case CONSTANT_Class:
 			size = sizeof(struct CONSTANT_Class_info) - 2;
-			cf.constant_pool[i].info = new u1[size]; // make sure to free this data later on
-			reader.readBytes(size, cf.constant_pool[i].info);
+			cf.constant_pool[cindex].info = new u1[size]; // make sure to free this data later on
+			reader.readBytes(size, cf.constant_pool[cindex].info);
 			break;
 		case CONSTANT_Methodref:
 			size = sizeof(struct CONSTANT_Methodref_info) - 2;
-			cf.constant_pool[i].info = new u1[size]; // make sure to free this data later on
-			reader.readBytes(size, cf.constant_pool[i].info);
+			cf.constant_pool[cindex].info = new u1[size]; // make sure to free this data later on
+			reader.readBytes(size, cf.constant_pool[cindex].info);
 			break;
 		default:
-			printf("constant tag(%i) not supported :( \n", cf.constant_pool[i].tag);
+			printf("constant tag(%i) not supported :( \n", cf.constant_pool[cindex].tag);
 			//exit(EXIT_FAILURE);
 			return false;
 			break;
 		}
+
+		cindex++;
 	}
 	cf.access_flags = reader.readShort();
 	cf.this_class = reader.readShort();

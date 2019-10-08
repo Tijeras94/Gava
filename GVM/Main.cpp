@@ -60,6 +60,9 @@ void exec(Stream& code, Frame* f, JavaClass* jclass) {
 	else if (opcode == op_istore_3) {
 		f->setv(3, f->pops());
 	}
+	else if (opcode == op_dstore_1) {
+		f->setv(1, f->pops());
+	}
 	else if (opcode == op_iconst_0) {
 		Variable v;
 		v.intValue = 0;
@@ -90,6 +93,29 @@ void exec(Stream& code, Frame* f, JavaClass* jclass) {
 		v.intValue = 5;
 		f->pushs(v);
 	}
+	else if (opcode == op_dconst_0) {
+		Variable v;
+		v.floatValue = 0;
+		f->pushs(v);
+	}
+	else if (opcode == op_dconst_1) {
+		Variable v;
+		v.floatValue = 1;
+		f->pushs(v);
+	}
+	else if (opcode == op_ldc2_w) {
+		//u2 ic = code.readSignedShort();
+		auto c = jclass->GetConstant(4);
+		if (c.tag == CONSTANT_Double) {
+			u1 byte[8];
+			code.readBytes(8, byte);
+			u4 as = getu4(byte);
+			u4 sd = getu4(byte+4);
+			printf("Double , %i", c.tag);
+		}
+
+
+	}
 	else if (opcode == op_iload) {
 		f->pushs(f->getv(code.readByte()));
 	}
@@ -105,7 +131,15 @@ void exec(Stream& code, Frame* f, JavaClass* jclass) {
 	else if (opcode == op_iload_3) {
 		f->pushs(f->getv(3));
 	}
+	else if (opcode == op_dload_1) {
+		f->pushs(f->getv(1));
+	}
 	/// MATH
+	else if (opcode == op_dadd) {
+		Variable v;
+		v.floatValue = f->pops().floatValue + f->pops().floatValue;
+		f->pushs(v);
+	}
 	else if (opcode == op_iadd) {
 		Variable v;
 		v.intValue = f->pops().intValue + f->pops().intValue;
@@ -234,7 +268,7 @@ int main()
 {
 	JavaClass* jclass;
 	ClassHeap map; 
-	if (map.LoadClass("Test", jclass)) {
+	if (map.LoadClass("Hello", jclass)) {
 		//char name[100];
 		method_info info = jclass->GetMethod("main", "([Ljava/lang/String;)V");
 		auto cd = jclass->getCodeFromMethod(info);
