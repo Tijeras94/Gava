@@ -13,33 +13,33 @@ class Frame {
 public:
 	Frame(int stacklen = 50, int varlen = 50) {
 		stack_len = stacklen;
-		stack = new int[stack_len];
+		stack = (Variable*)new Variable[stack_len];
 		var_len = varlen;
-		variable = (int*)new int[var_len];
+		variable = (Variable*)new Variable[var_len];
 		sp = 0;
 		vp = 0;
 	}
 
-	void pushs(int n) {
+	void pushs(Variable n) {
 		stack[sp++] = n;
 	}
 
-	int pops() {
+	Variable pops() {
 		return stack[--sp];
 	}
 
-	void setv(int i, int val) {
+	void setv(int i, Variable val) {
 		variable[i] = val;
 	}
 
-	int getv(int i) {
+	Variable getv(int i) {
 		return variable[i];
 	}
 
-	int* variable;
+	Variable* variable;
 	int var_len;
 	int vp;
-	int* stack;
+	Variable* stack;
 	int sp;
 	int stack_len;
 };
@@ -47,7 +47,9 @@ public:
 void exec(Stream& code, Frame* f, JavaClass* jclass) {
 	u1 opcode = code.readByte();
 	if (opcode == op_bipush) {
-		f->pushs(code.readByte());
+		Variable v;
+		v.intValue = code.readByte();
+		f->pushs(v);
 	}
 	else if (opcode == op_istore_1) {
 		f->setv(1, f->pops());
@@ -59,22 +61,34 @@ void exec(Stream& code, Frame* f, JavaClass* jclass) {
 		f->setv(3, f->pops());
 	}
 	else if (opcode == op_iconst_0) {
-		f->pushs(0);
+		Variable v;
+		v.intValue = 0;
+		f->pushs(v);
 	}
 	else if (opcode == op_iconst_1) {
-		f->pushs(1);
+		Variable v;
+		v.intValue = 1;
+		f->pushs(v);
 	}
 	else if (opcode == op_iconst_2) {
-		f->pushs(2);
+		Variable v;
+		v.intValue = 2;
+		f->pushs(v);
 	}
 	else if (opcode == op_iconst_3) {
-		f->pushs(3);
+		Variable v;
+		v.intValue = 3;
+		f->pushs(v);
 	}
 	else if (opcode == op_iconst_4) {
-		f->pushs(4);
+		Variable v;
+		v.intValue = 4;
+		f->pushs(v);
 	}
 	else if (opcode == op_iconst_5) {
-		f->pushs(5);
+		Variable v;
+		v.intValue = 5;
+		f->pushs(v);
 	}
 	else if (opcode == op_iload) {
 		f->pushs(f->getv(code.readByte()));
@@ -93,18 +107,26 @@ void exec(Stream& code, Frame* f, JavaClass* jclass) {
 	}
 	/// MATH
 	else if (opcode == op_iadd) {
-		f->pushs(f->pops() + f->pops());
+		Variable v;
+		v.intValue = f->pops().intValue + f->pops().intValue;
+		f->pushs(v);
 	}
 	else if (opcode == op_isub) {
-		f->pushs((-f->pops()) + f->pops());
+		Variable v;
+		v.intValue = f->pops().intValue - f->pops().intValue;
+		f->pushs(v);
 	}
 	else if (opcode == op_iinc) {
 		int index = code.readByte();
 		int cons = code.readByte();
-		f->setv(index, f->getv(index) + cons);
+		Variable v;
+		v.intValue = f->getv(index).intValue + cons;
+		f->setv(index, v);
 	}
 	else if (opcode == op_imul) {
-		f->pushs(f->pops() * f->pops());
+		Variable v;
+		v.intValue = f->pops().intValue * f->pops().intValue;
+		f->pushs(v);
 	}
 	else if (opcode == op_return) {  
 		auto as = f - 1;
@@ -135,8 +157,8 @@ void exec(Stream& code, Frame* f, JavaClass* jclass) {
 
 				//check if current function its a native print function 
 				if (strcmp("Print", name) == 0) { // check if method is a print
-					int as = f->pops(); // pop value
-					printf("%i", as);
+					auto as = f->pops(); // pop value
+					printf("%i", as.intValue);
 				}
 
 			}
@@ -177,7 +199,7 @@ void exec(Stream& code, Frame* f, JavaClass* jclass) {
 	} // comparisons
 	else if (opcode == op_ifne) {
 		i4 jmp = code.readSignedShort() - 3;
-		if(0 != f->pops())
+		if(0 != f->pops().intValue)
 			code.seekoffset(jmp); 
 	}
 	else if (opcode == op_goto) {
@@ -187,8 +209,8 @@ void exec(Stream& code, Frame* f, JavaClass* jclass) {
 	else if (opcode == op_if_icmpge) {
 		i4 jmp = code.readSignedShort() - 3;
 		//value1, value2 
-		int v2 = f->pops();
-		int v1 = f->pops();
+		int v2 = f->pops().intValue;
+		int v1 = f->pops().intValue;
 
 		//if value1 is greater than or equal to value2, branch to instruction at
 		if(v1 >= v2)
