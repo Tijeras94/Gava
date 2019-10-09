@@ -27,6 +27,9 @@ CStream::CStream(cp_info ci)
 	case CONSTANT_Methodref:
 		size = sizeof(struct CONSTANT_Methodref_info) - 2;
 		break;
+	case CONSTANT_Double:
+		size = 8;
+		break;
 	default:
 		printf("CStream - constant tag(%i) not supported :( \n", ci.tag);
 		//exit(EXIT_FAILURE); 

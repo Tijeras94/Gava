@@ -106,3 +106,21 @@ u4 Stream::peekInt()
 	pos -= 4;
 	return ret;
 }
+
+f4 Stream::readDouble()
+{
+	u1 byte[8];
+	readBytes(8, byte);
+	union _Cvt {
+		f8  d;
+		u8 j;
+		struct {
+			u4 h;
+			u4 l;
+		};
+	};
+	_Cvt X{};
+	X.l = getu4(byte);
+	X.h = getu4(byte + 4);
+	return X.d;
+}

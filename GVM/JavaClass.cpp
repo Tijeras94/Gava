@@ -172,7 +172,7 @@ bool JavaClass::Load(const char* filename, JavaClass& cf)
 	{
 		
 		cf.constant_pool[cindex].tag = reader.readByte();
-		printf("tag index %i: %i\n", cindex+1, cf.constant_pool[cindex].tag);
+		//printf("tag index %i: %i\n", cindex+1, cf.constant_pool[cindex].tag);
 		int size = 0;
 		//iin order to get the right bytes for the info, you subtract the byte for the tag and the byte that the struct is holding
 		switch (cf.constant_pool[cindex].tag)

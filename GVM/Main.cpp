@@ -103,18 +103,13 @@ void exec(Stream& code, Frame* f, JavaClass* jclass) {
 		v.floatValue = 1;
 		f->pushs(v);
 	}
-	else if (opcode == op_ldc2_w) {
-		//u2 ic = code.readSignedShort();
-		auto c = jclass->GetConstant(4);
+	else if (opcode == op_ldc2_w) { 
+		auto c = jclass->GetStreamConstant(code.readSignedShort());
 		if (c.tag == CONSTANT_Double) {
-			u1 byte[8];
-			code.readBytes(8, byte);
-			u4 as = getu4(byte);
-			u4 sd = getu4(byte+4);
-			printf("Double , %i", c.tag);
-		}
-
-
+			Variable val;  
+			val.floatValue = c.readDouble(); 
+			f->pushs(val); 
+		} 
 	}
 	else if (opcode == op_iload) {
 		f->pushs(f->getv(code.readByte()));
@@ -192,7 +187,13 @@ void exec(Stream& code, Frame* f, JavaClass* jclass) {
 				//check if current function its a native print function 
 				if (strcmp("Print", name) == 0) { // check if method is a print
 					auto as = f->pops(); // pop value
-					printf("%i", as.intValue);
+					if (strstr(sig, "D)V") != NULL) { // its a double
+						printf("%f", as.floatValue);
+					}
+					else {
+						printf("%i", as.intValue);
+					} 
+
 				}
 
 			}
