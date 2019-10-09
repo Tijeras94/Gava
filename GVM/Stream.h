@@ -34,6 +34,7 @@ public:
 	u4 readInt();
 	u4 peekInt();
 
+	f4 readFloat();
 	f4 readDouble();
 
 	void seekoffset(i4 pos);

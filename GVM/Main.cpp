@@ -63,6 +63,9 @@ void exec(Stream& code, Frame* f, JavaClass* jclass) {
 	else if (opcode == op_dstore_1) {
 		f->setv(1, f->pops());
 	}
+	else if (opcode == op_fstore_1) {
+		f->setv(1, f->pops());
+	}
 	else if (opcode == op_iconst_0) {
 		Variable v;
 		v.intValue = 0;
@@ -103,6 +106,24 @@ void exec(Stream& code, Frame* f, JavaClass* jclass) {
 		v.floatValue = 1;
 		f->pushs(v);
 	}
+	else if (opcode == op_fconst_0) {
+		Variable v;
+		v.floatValue = 0;
+		f->pushs(v);
+	}
+	else if (opcode == op_fconst_1) {
+		Variable v;
+		v.floatValue = 1;
+		f->pushs(v);
+	}
+	else if (opcode == op_ldc) {
+		auto c = jclass->GetStreamConstant(code.readByte());
+		if (c.tag == CONSTANT_Float) {
+			Variable val;
+			val.floatValue = c.readFloat();
+			f->pushs(val);
+		}
+	}
 	else if (opcode == op_ldc2_w) { 
 		auto c = jclass->GetStreamConstant(code.readSignedShort());
 		if (c.tag == CONSTANT_Double) {
@@ -129,7 +150,15 @@ void exec(Stream& code, Frame* f, JavaClass* jclass) {
 	else if (opcode == op_dload_1) {
 		f->pushs(f->getv(1));
 	}
+	else if (opcode == op_fload_1) {
+		f->pushs(f->getv(1));
+	}
 	/// MATH
+	else if (opcode == op_fadd) {
+		Variable v;
+		v.floatValue = f->pops().floatValue + f->pops().floatValue;
+		f->pushs(v);
+	}
 	else if (opcode == op_dadd) {
 		Variable v;
 		v.floatValue = f->pops().floatValue + f->pops().floatValue;
@@ -188,6 +217,8 @@ void exec(Stream& code, Frame* f, JavaClass* jclass) {
 				if (strcmp("Print", name) == 0) { // check if method is a print
 					auto as = f->pops(); // pop value
 					if (strstr(sig, "D)V") != NULL) { // its a double
+						printf("%f", as.floatValue);
+					}else if (strstr(sig, "F)V") != NULL) { // its a double
 						printf("%f", as.floatValue);
 					}
 					else {

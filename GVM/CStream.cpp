@@ -18,6 +18,9 @@ CStream::CStream(cp_info ci)
 	case CONSTANT_Integer:
 		size = sizeof(u4);
 		break;
+	case CONSTANT_Float:
+		size = sizeof(u4);
+		break;
 	case CONSTANT_NameAndType:
 		size = sizeof(struct CONSTANT_NameAndType_info) - 2;
 		break;

@@ -107,6 +107,23 @@ u4 Stream::peekInt()
 	return ret;
 }
 
+f4 Stream::readFloat()
+{
+	//TODO: implement float 
+	union _Cvt {
+		f4  d; 
+		struct {
+			u4 h;
+			u4 l;
+		};
+	};
+
+	_Cvt X{}; 
+	X.h = readInt();
+	X.l = 0;
+	return X.d;
+}
+
 f4 Stream::readDouble()
 {
 	u1 byte[8];

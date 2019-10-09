@@ -1,39 +1,38 @@
 Classfile /C:/Users/tijerija/source/repos/GVM/GVM/sdk/Hello.class
-  Last modified Oct 8, 2019; size 472 bytes
-  MD5 checksum 2c92253b1ec692ca66c9e84d76f0ca3b
+  Last modified Oct 9, 2019; size 464 bytes
+  MD5 checksum a7fd6bad4a85b2374272542168e2d542
   Compiled from "Hello.java"
 class Hello
   minor version: 0
   major version: 56
   flags: (0x0020) ACC_SUPER
-  this_class: #6                          // Hello
-  super_class: #7                         // java/lang/Object
-  interfaces: 0, fields: 0, methods: 4, attributes: 1
+  this_class: #4                          // Hello
+  super_class: #5                         // java/lang/Object
+  interfaces: 0, fields: 0, methods: 5, attributes: 1
 Constant pool:
-   #1 = Methodref          #7.#21         // java/lang/Object."<init>":()V
-   #2 = Methodref          #6.#22         // Hello.factorial:(I)I
-   #3 = Methodref          #6.#23         // Hello.Print:(I)V
-   #4 = Double             2.5d
-   #6 = Class              #24            // Hello
-   #7 = Class              #25            // java/lang/Object
-   #8 = Utf8               <init>
-   #9 = Utf8               ()V
-  #10 = Utf8               Code
-  #11 = Utf8               LineNumberTable
-  #12 = Utf8               Print
-  #13 = Utf8               (I)V
-  #14 = Utf8               factorial
-  #15 = Utf8               (I)I
-  #16 = Utf8               StackMapTable
-  #17 = Utf8               main
-  #18 = Utf8               ([Ljava/lang/String;)V
-  #19 = Utf8               SourceFile
-  #20 = Utf8               Hello.java
-  #21 = NameAndType        #8:#9          // "<init>":()V
-  #22 = NameAndType        #14:#15        // factorial:(I)I
-  #23 = NameAndType        #12:#13        // Print:(I)V
-  #24 = Utf8               Hello
-  #25 = Utf8               java/lang/Object
+   #1 = Methodref          #5.#20         // java/lang/Object."<init>":()V
+   #2 = Methodref          #4.#21         // Hello.factorial:(I)I
+   #3 = Float              2.5f
+   #4 = Class              #22            // Hello
+   #5 = Class              #23            // java/lang/Object
+   #6 = Utf8               <init>
+   #7 = Utf8               ()V
+   #8 = Utf8               Code
+   #9 = Utf8               LineNumberTable
+  #10 = Utf8               Print
+  #11 = Utf8               (I)V
+  #12 = Utf8               (D)V
+  #13 = Utf8               factorial
+  #14 = Utf8               (I)I
+  #15 = Utf8               StackMapTable
+  #16 = Utf8               main
+  #17 = Utf8               ([Ljava/lang/String;)V
+  #18 = Utf8               SourceFile
+  #19 = Utf8               Hello.java
+  #20 = NameAndType        #6:#7          // "<init>":()V
+  #21 = NameAndType        #13:#14        // factorial:(I)I
+  #22 = Utf8               Hello
+  #23 = Utf8               java/lang/Object
 {
   Hello();
     descriptor: ()V
@@ -48,6 +47,10 @@ Constant pool:
 
   public static native void Print(int);
     descriptor: (I)V
+    flags: (0x0109) ACC_PUBLIC, ACC_STATIC, ACC_NATIVE
+
+  public static native void Print(double);
+    descriptor: (D)V
     flags: (0x0109) ACC_PUBLIC, ACC_STATIC, ACC_NATIVE
 
   public static int factorial(int);
@@ -67,8 +70,8 @@ Constant pool:
         13: imul
         14: ireturn
       LineNumberTable:
-        line 7: 0
-        line 8: 6
+        line 8: 0
+        line 9: 6
       StackMapTable: number_of_entries = 1
         frame_type = 6 /* same */
 
@@ -76,35 +79,32 @@ Constant pool:
     descriptor: ([Ljava/lang/String;)V
     flags: (0x0009) ACC_PUBLIC, ACC_STATIC
     Code:
-      stack=4, locals=4, args_size=1
-         0: dconst_0
-         1: dstore_1
+      stack=2, locals=3, args_size=1
+         0: fconst_0
+         1: fstore_1
          2: iconst_0
-         3: istore_3
-         4: iload_3
+         3: istore_2
+         4: iload_2
          5: bipush        10
-         7: if_icmpge     26
-        10: iload_3
-        11: invokestatic  #3                  // Method Print:(I)V
-        14: iinc          3, 1
-        17: dload_1
-        18: ldc2_w        #4                  // double 2.5d
-        21: dadd
-        22: dstore_1
-        23: goto          4
-        26: return
+         7: if_icmpge     21
+        10: iinc          2, 1
+        13: fload_1
+        14: ldc           #3                  // float 2.5f
+        16: fadd
+        17: fstore_1
+        18: goto          4
+        21: return
       LineNumberTable:
-        line 18: 0
-        line 19: 2
-        line 20: 4
-        line 21: 10
-        line 22: 14
-        line 23: 17
-        line 27: 26
+        line 19: 0
+        line 20: 2
+        line 21: 4
+        line 23: 10
+        line 24: 13
+        line 29: 21
       StackMapTable: number_of_entries = 2
         frame_type = 253 /* append */
           offset_delta = 4
-          locals = [ double, int ]
-        frame_type = 21 /* same */
+          locals = [ float, int ]
+        frame_type = 16 /* same */
 }
 SourceFile: "Hello.java"

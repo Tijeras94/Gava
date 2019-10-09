@@ -205,6 +205,11 @@ bool JavaClass::Load(const char* filename, JavaClass& cf)
 			cf.constant_pool[cindex].tag = -1;
 			cf.constant_pool[cindex].info = new u1[1];
 			break;
+		case CONSTANT_Float:
+			size = sizeof(u4);
+			cf.constant_pool[cindex].info = new u1[size]; // make sure to free this data later on
+			reader.readBytes(size, cf.constant_pool[cindex].info);
+			break;
 		case CONSTANT_NameAndType:
 			size = sizeof(struct CONSTANT_NameAndType_info) - 2;
 			cf.constant_pool[cindex].info = new u1[size]; // make sure to free this data later on
