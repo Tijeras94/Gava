@@ -2,11 +2,16 @@
 #include "types.h"
 #include "FileStream.h"
 #include "CStream.h"
+#include "ObjectHeap.h"
+#include "ClassHeap.h"
 
 class JavaClass : ClassFile
 {
 public:
 	bool isLoaded;
+	ObjectHeap* heap;
+	ClassHeap* loader;
+
 public:
 	JavaClass(const char* filename);
 	CStream GetStreamConstant(int index);

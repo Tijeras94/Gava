@@ -1,0 +1,45 @@
+Classfile /C:/Users/tijerija/source/repos/GVM/GVM/sdk/java/lang/Object.class
+  Last modified Oct 3, 2019; size 241 bytes
+  MD5 checksum ef57def5485f8be0e50a53934e43dc6c
+  Compiled from "Object.java"
+public class java.lang.Object
+  minor version: 0
+  major version: 50
+  flags: (0x0021) ACC_PUBLIC, ACC_SUPER
+  this_class: #2                          // java/lang/Object
+  super_class: #0
+  interfaces: 0, fields: 0, methods: 2, attributes: 1
+Constant pool:
+   #1 = String             #11            //
+   #2 = Class              #12            // java/lang/Object
+   #3 = Utf8               <init>
+   #4 = Utf8               ()V
+   #5 = Utf8               Code
+   #6 = Utf8               LineNumberTable
+   #7 = Utf8               toString
+   #8 = Utf8               ()Ljava/lang/String;
+   #9 = Utf8               SourceFile
+  #10 = Utf8               Object.java
+  #11 = Utf8
+  #12 = Utf8               java/lang/Object
+{
+  public java.lang.Object();
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=0, locals=1, args_size=1
+         0: return
+      LineNumberTable:
+        line 3: 0
+
+  public java.lang.String toString();
+    descriptor: ()Ljava/lang/String;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: ldc           #1                  // String
+         2: areturn
+      LineNumberTable:
+        line 7: 0
+}
+SourceFile: "Object.java"

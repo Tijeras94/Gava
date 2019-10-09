@@ -1,5 +1,5 @@
 #include "ClassHeap.h"
-   
+#include "JavaClass.h"
 bool ClassHeap::LoadClass(GString classname, JavaClass* &jclass)
 {
 	if (!dic.contains(&classname)) {

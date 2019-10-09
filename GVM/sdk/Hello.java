@@ -10,20 +10,22 @@ class Hello{
     }   
 	
     public static void main(String args[]){
+        Hello ob = new Hello();
+
         //int num1 = 20;
         //int num2 = 20;
 
         //int sum = factorial(5)   + 10;
         
         //Print(sum);
-        float name = 0;
-        int i= 0;
-        while(i<10){
+        //float name = 0;
+        //int i= 0;
+        //while(i<10){
           //Print(i);
-          i++;
-          name += 2.5f;
-        }
-        Print(name);
+        //  i++;
+        //  name += 2.5f;
+        //}
+        //Print(name);
 
 
     }

@@ -1,4 +1,4 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <assert.h>
 #include <memory>
 #include "types.h"
@@ -22,6 +22,10 @@ public:
 
 	void pushs(Variable n) {
 		stack[sp++] = n;
+	}
+
+	Variable top() {
+		return stack[sp - 1]; // get last item in stack
 	}
 
 	Variable pops() {
@@ -64,6 +68,9 @@ void exec(Stream& code, Frame* f, JavaClass* jclass) {
 		f->setv(1, f->pops());
 	}
 	else if (opcode == op_fstore_1) {
+		f->setv(1, f->pops());
+	}
+	else if (opcode == op_astore_1) {
 		f->setv(1, f->pops());
 	}
 	else if (opcode == op_iconst_0) {
@@ -194,7 +201,69 @@ void exec(Stream& code, Frame* f, JavaClass* jclass) {
 	else if (opcode == op_ireturn) {
 		return;
 	}
-	else if (opcode == op_invokestatic) {
+	else if (opcode == op_invokespecial) {
+		u2 ind = code.readShort();
+
+		//needs validation
+		auto var = (Variable*)jclass->heap->GetObjectPointer(f->pops().object);
+		auto oclass = (JavaClass*)var[0].ptrValue;
+
+		auto inf = jclass->GetStreamConstant(ind);
+		char name[120];
+		char sig[120];
+		if (inf.tag == CONSTANT_Methodref) {
+			auto ci = jclass->GetStreamConstant(inf.readShort());
+			auto nti = jclass->GetStreamConstant(inf.readShort());
+			
+			//method
+			jclass->GetUtf8String(jclass->GetConstant(nti.readShort()), name);
+			//sig
+			jclass->GetUtf8String(jclass->GetConstant(nti.readShort()), sig);
+		} 
+		
+
+		//	objectref, [arg1, arg2, ...] → result
+		auto method = oclass->GetMethod(name, sig);
+		auto cd = oclass->getCodeFromMethod(method);
+		Frame* nf = f + 1; // go to the nex frame
+
+
+		// TODO: this needs to be the args count 
+		//fill the variables with parametes method parameters
+
+		//for (int i = 0; i < cd.max_locals; i++) {
+		//
+		//	nf->setv(i, f->pops());
+		//}
+		
+		char cna[100];
+		oclass->GetClassName(cna);
+
+		if (strcmp(cna, "java/lang/Object") != 0) {
+			//if not equal
+			Variable vv;
+			JavaClass* parent;
+			oclass->loader->LoadClass(GString("java/lang/Object"), parent);
+			parent->heap = oclass->heap;
+			parent->loader = oclass->loader;
+			vv.object = oclass->heap->CreateObject(parent);
+			nf->setv(0, vv);
+		}
+		
+
+		//nf->setv(0, f->pops());
+		//nf->setv(1, f->pops());
+
+		//code. 
+		Stream code(cd.code, cd.code_length);
+		exec(code, nf, jclass);
+
+		//check if its a void method if its not push return value to the stack
+		if (strstr(sig, ")V") == NULL) {
+			f->pushs(nf->pops()); // push return value to the end of the stack of the parent
+		}
+		
+	}else if (opcode == op_invokestatic) {
 		u2 ind = code.readShort(); 
 		auto inf = jclass->GetStreamConstant(ind); 
 		auto ci = jclass->GetStreamConstant(inf.readShort());
@@ -283,8 +352,34 @@ void exec(Stream& code, Frame* f, JavaClass* jclass) {
 			code.seekoffset(jmp); 
 	}
 	// references
-	else if (opcode == op_new) {
-		
+	else if (opcode == op_new) { 
+		auto classf = jclass->GetStreamConstant(code.readShort());
+		if (classf.tag == CONSTANT_Class) {
+			char name[120]; 
+			jclass->GetUtf8String(jclass->GetConstant(classf.readShort()), name);
+			JavaClass* vc;
+			if (jclass->loader->LoadClass(GString(name), vc))
+			{
+				Variable ret;
+				ret.object = jclass->heap->CreateObject(vc); 
+				f->pushs(ret);
+			}
+			else {
+				printf("error: unable to create load class %s", name);
+			}
+		}
+
+
+	}
+	//stack
+	else if(opcode == op_dup) {
+		auto ret = f->top();
+
+		f->pushs(ret); //duplicate from the last item in stack
+	}
+	// loads
+	else if (opcode == op_aload_0) {
+		f->pushs(f->getv(0));
 	}
 	else
 	{ 
@@ -298,9 +393,13 @@ void exec(Stream& code, Frame* f, JavaClass* jclass) {
 
 int main()
 {
+	
 	JavaClass* jclass;
 	ClassHeap map; 
-	if (map.LoadClass("Hello", jclass)) {
+	ObjectHeap memheap;
+	if (map.LoadClass("Hello", jclass)) { 
+		jclass->heap = &memheap;
+		jclass->loader = &map;
 		//char name[100];
 		method_info info = jclass->GetMethod("main", "([Ljava/lang/String;)V");
 		auto cd = jclass->getCodeFromMethod(info);

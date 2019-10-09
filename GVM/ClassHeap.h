@@ -1,9 +1,10 @@
 #pragma once
 
-#include "JavaClass.h" 
+//#include "JavaClass.h" 
 #include "Dictionary.h"
 #include "GString.h"
 
+class JavaClass;
 class ClassHeap
 {
 public:  
