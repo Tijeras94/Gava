@@ -257,7 +257,7 @@ public:
 };
 
 union Variable
-{
+{ 
 	u1 charValue;
 	u2 shortValue;
 	u4 intValue;

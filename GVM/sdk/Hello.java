@@ -2,6 +2,7 @@
 class Hello{
 
     public static native void Print(int num);
+    public static native void Print(double num);
 
     public static int factorial(int n){
 		if(n==0) return 1; 
@@ -12,14 +13,17 @@ class Hello{
         //int num1 = 20;
         //int num2 = 20;
 
-        int sum = factorial(5)   + 10;
+        //int sum = factorial(5)   + 10;
         
-        Print(sum);
+        //Print(sum);
+		double name = 0;
 		int i= 0;
 		while(i<10){
-			Print(i);
+			//Print(i);
 			i++;
-		} 
+			name += 2.5;
+		}
+                Print(name);
 
 
     }
