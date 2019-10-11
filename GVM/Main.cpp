@@ -201,6 +201,68 @@ void exec(Stream& code, Frame* f, JavaClass* jclass) {
 	else if (opcode == op_ireturn) {
 		return;
 	}
+	else if (opcode == op_invokevirtual) {
+	u2 ind = code.readShort();
+
+	//needs validation
+	auto var = (Variable*)jclass->heap->GetObjectPointer(f->pops().object);
+	auto oclass = (JavaClass*)var[0].ptrValue;
+
+	auto inf = jclass->GetStreamConstant(ind);
+	char name[120];
+	char sig[120];
+	if (inf.tag == CONSTANT_Methodref) {
+		auto ci = jclass->GetStreamConstant(inf.readShort());
+		auto nti = jclass->GetStreamConstant(inf.readShort());
+
+		//method
+		jclass->GetUtf8String(jclass->GetConstant(nti.readShort()), name);
+		//sig
+		jclass->GetUtf8String(jclass->GetConstant(nti.readShort()), sig);
+	}
+
+
+	//	objectref, [arg1, arg2, ...] → result
+	auto method = oclass->GetMethod(name, sig);
+	auto cd = oclass->getCodeFromMethod(method);
+	Frame* nf = f + 1; // go to the nex frame
+
+
+	// TODO: this needs to be the args count 
+	//fill the variables with parametes method parameters
+
+	//for (int i = 0; i < cd.max_locals; i++) {
+	//
+	//	nf->setv(i, f->pops());
+	//}
+
+	char cna[100];
+	oclass->GetClassName(cna);
+
+	if (strcmp(cna, "java/lang/Object") != 0) {
+		//if not equal
+		Variable vv;
+		JavaClass* parent;
+		oclass->loader->LoadClass(GString("java/lang/Object"), parent);
+		parent->heap = oclass->heap;
+		parent->loader = oclass->loader;
+		vv.object = oclass->heap->CreateObject(parent);
+		nf->setv(0, vv);
+	}
+
+
+	//nf->setv(0, f->pops());
+	//nf->setv(1, f->pops());
+
+	//code. 
+	Stream code(cd.code, cd.code_length);
+	exec(code, nf, jclass);
+
+	//check if its a void method if its not push return value to the stack
+	if (strstr(sig, ")V") == NULL) {
+		f->pushs(nf->pops()); // push return value to the end of the stack of the parent
+	}
+	}
 	else if (opcode == op_invokespecial) {
 		u2 ind = code.readShort();
 
@@ -397,7 +459,7 @@ int main()
 	JavaClass* jclass;
 	ClassHeap map; 
 	ObjectHeap memheap;
-	if (map.LoadClass("Hello", jclass)) { 
+	if (map.LoadClass("Test", jclass)) { 
 		jclass->heap = &memheap;
 		jclass->loader = &map;
 		//char name[100];
